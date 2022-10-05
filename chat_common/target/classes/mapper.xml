@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mapper table = "user" entity = "domain.User">
+    <column name = "id" field = "id" dataType = "java.lang.Integer"></column>
+</mapper>
