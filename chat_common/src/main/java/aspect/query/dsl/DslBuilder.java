@@ -33,6 +33,11 @@ public class DslBuilder {
         return this;
     }
 
+    public DslBuilder where(String target, String value){
+        sql += " where " + target + " = " + value;
+        return this;
+    }
+
     public String transform(){
         return this.sql;
     }

@@ -16,7 +16,7 @@ public class test1 {
 //        System.out.println(QueryImpl.query("show databases"));
 //        System.out.println(QueryImpl.query("user"));
         DslBuilder dslBuilder = new DslBuilder();
-        System.out.println(dslBuilder.select("id").from("user").transform());
+        System.out.println(dslBuilder.select("id").from("user").where("id", "1").transform());
         System.out.println(QueryImpl.query(dslBuilder));
     }
 }
