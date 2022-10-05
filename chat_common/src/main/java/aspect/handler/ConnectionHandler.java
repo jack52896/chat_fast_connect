@@ -51,11 +51,11 @@ public class ConnectionHandler implements InvocationHandler {
             stringFieldMap.keySet().forEach(s -> {
                 try {
                     Object result = aClass.newInstance();
-                    String value = resultSet.getString(s);
-                    Integer integer = Integer.valueOf(value);
+                    String fieldType = DBConnection.tableFieldMap.get(sql).get(s);
+                    Object value = resultSet.getObject(s, Class.forName(fieldType));
                     Field field = stringFieldMap.get(s);
                     field.setAccessible(true);
-                    field.set(result, field.getType().cast(integer));
+                    field.set(result, value);
                     objectList.add(result);
                 } catch (Exception e) {
                     log.error(e.getClass().getSimpleName(), e);

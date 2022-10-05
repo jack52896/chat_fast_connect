@@ -36,6 +36,8 @@ public class DBConnection {
 
     public static Map<String, Class> tableEntityMap = new HashMap<>();
 
+    public static Map<String, Map<String,String>> tableFieldMap = new HashMap<>();
+
     static {
         try {
             log.info("数据库连接开始初始化");
@@ -70,21 +72,24 @@ public class DBConnection {
                 tableEntityMap.put(table.getNodeValue(), Class.forName(entity.getNodeValue()));
                 NodeList fieldList = mapper.getChildNodes();
                 Map<String, Field> columnMap = new HashMap<>();
-                Map<String, Object> dataTypeMap = new HashMap<>();
+                Map<String, String> dataTypeMap = new HashMap<>();
                 for(int j = 0; j< fieldList.getLength(); j++){
                     Node item = fieldList.item(j);
                     if(item instanceof Element){
                         NamedNodeMap column = item.getAttributes();
                         Node name = column.getNamedItem("name");
                         Node field = column.getNamedItem("field");
+                        Node dataType = column.getNamedItem("dataType");
                         Class<?> aClass = Class.forName(entity.getNodeValue());
                         for (Field declaredField : aClass.getDeclaredFields()) {
                             if(declaredField.getName().equals(field.getNodeValue())){
                                 columnMap.put(name.getNodeValue(), declaredField);
+                                dataTypeMap.put(name.getNodeValue(), dataType.getNodeValue());
                             }
                         }
                     }
                 }
+                tableFieldMap.put(table.getNodeValue(), dataTypeMap);
                 mapperMap.put(table.getNodeValue(), columnMap);
             }
             log.info("mapper.xml读取完毕");
