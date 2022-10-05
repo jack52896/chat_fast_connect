@@ -1,6 +1,7 @@
 package aspect.query.impl;
 
 import aspect.query.Query;
+import aspect.query.dsl.DslBuilder;
 
 /**
  * @author yujie
@@ -8,7 +9,7 @@ import aspect.query.Query;
  * @description
  */
 public class QueryImpl {
-    public static Object query(String sql){
-        return  Query.query(sql).executorQuery(null, null);
+    public static Object query(DslBuilder dslBuilder){
+        return  Query.query(dslBuilder).executorQuery(null, null);
     }
 }

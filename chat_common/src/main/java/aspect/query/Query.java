@@ -1,6 +1,7 @@
 package aspect.query;
 
 import aspect.handler.ConnectionHandler;
+import aspect.query.dsl.DslBuilder;
 import aspect.service.CustomizeStatement;
 import aspect.service.impl.CustomizeStatementImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +18,9 @@ import java.sql.ResultSet;
 @Slf4j
 public class Query  {
 
-    public static CustomizeStatement query(String sql){
+    public static CustomizeStatement query(DslBuilder dslBuilder){
         CustomizeStatementImpl customizeStatement = new CustomizeStatementImpl();
-        Object object = Proxy.newProxyInstance(customizeStatement.getClass().getClassLoader(), customizeStatement.getClass().getInterfaces(), new ConnectionHandler(customizeStatement, sql));
+        Object object = Proxy.newProxyInstance(customizeStatement.getClass().getClassLoader(), customizeStatement.getClass().getInterfaces(), new ConnectionHandler(customizeStatement, dslBuilder));
         return (CustomizeStatement) object;
     }
 

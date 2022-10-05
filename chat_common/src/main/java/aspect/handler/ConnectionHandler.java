@@ -1,5 +1,6 @@
 package aspect.handler;
 
+import aspect.query.dsl.DslBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -32,26 +33,25 @@ public class ConnectionHandler implements InvocationHandler {
 
     private Object object;
 
-    private String sql;
+    private DslBuilder dslBuilder;
 
-    public ConnectionHandler(Object object, String sql){
+    public ConnectionHandler(Object object, DslBuilder dslBuilder){
         this.object = object;
-        this.sql = sql;
+        this.dslBuilder = dslBuilder;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Connection connection = DBConnection.getConnection();
-        String str = "select * from ";
-        ResultSet resultSet = (ResultSet) method.invoke(object, str + sql, connection);
-        Map<String, Field> stringFieldMap = DBConnection.mapperMap.get(sql);
-        Class aClass = DBConnection.tableEntityMap.get(sql);
+        ResultSet resultSet = (ResultSet) method.invoke(object, dslBuilder.transform(), connection);
+        Map<String, Field> stringFieldMap = DBConnection.mapperMap.get(dslBuilder.getBasePath());
+        Class aClass = DBConnection.tableEntityMap.get(dslBuilder.getBasePath());
         List<Object> objectList = new ArrayList<>();
         while(resultSet.next()){
             stringFieldMap.keySet().forEach(s -> {
                 try {
                     Object result = aClass.newInstance();
-                    String fieldType = DBConnection.tableFieldMap.get(sql).get(s);
+                    String fieldType = DBConnection.tableFieldMap.get(dslBuilder.getBasePath()).get(s);
                     Object value = resultSet.getObject(s, Class.forName(fieldType));
                     Field field = stringFieldMap.get(s);
                     field.setAccessible(true);
@@ -62,7 +62,7 @@ public class ConnectionHandler implements InvocationHandler {
                 }
             });
         }
-        log.info("执行sql:{}", str + sql);
+        log.info("执行sql:{}", dslBuilder.transform());
         return objectList;
     }
 }

@@ -1,4 +1,5 @@
 import aspect.query.Query;
+import aspect.query.dsl.DslBuilder;
 import aspect.query.impl.QueryImpl;
 import domain.User;
 
@@ -13,6 +14,9 @@ import java.sql.SQLException;
 public class test1 {
     public static void main(String[] args) throws SQLException {
 //        System.out.println(QueryImpl.query("show databases"));
-        System.out.println(QueryImpl.query("user"));
+//        System.out.println(QueryImpl.query("user"));
+        DslBuilder dslBuilder = new DslBuilder();
+        System.out.println(dslBuilder.select("id").from("user").transform());
+        System.out.println(QueryImpl.query(dslBuilder));
     }
 }
