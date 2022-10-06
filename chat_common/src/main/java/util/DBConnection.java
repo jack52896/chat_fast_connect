@@ -49,7 +49,7 @@ public class DBConnection {
             pwd = properties.getProperty("dataSource.pwd");
             Class.forName(driverName);
             log.info("数据库连接结束初始化");
-            log.info("成功连接至:{}", url);
+            log.info("连接URL:{}", url);
         } catch (Exception e) {
             log.error("读取配置文件失败，无法打开数据库连接, 异常信息:{}", e.getClass().getSimpleName(), e);
         }

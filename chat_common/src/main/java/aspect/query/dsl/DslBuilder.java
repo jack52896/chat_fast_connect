@@ -11,6 +11,8 @@ public class DslBuilder {
 
     private String basePath;
 
+    private String[] args;
+
     public String getBasePath() {
         return basePath;
     }
@@ -21,6 +23,7 @@ public class DslBuilder {
 
     public DslBuilder select(String...args){
         sql="select ";
+        this.args = args;
         for (String arg : args) {
             sql += arg;
         }
