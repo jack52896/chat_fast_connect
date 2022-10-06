@@ -55,6 +55,8 @@ public class ConnectionHandler implements InvocationHandler {
         }
         log.info("connection:{}", connection);
         log.info("执行sql:{}", dslBuilder.transform());
+        log.info("执行完毕，释放connection至连接池");
+        DataSourcePool.releaseConnection(connection);
         return objectList;
     }
 }

@@ -3,9 +3,12 @@ package pool;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,9 +22,11 @@ public class DataSourcePool {
 
     private static LinkedList<Connection> freeConnnection = new LinkedList<>();
 
-    private static LinkedList<Connection> useConnection = new LinkedList<>();
+//    private static LinkedList<Connection> useConnection = new LinkedList<>();
 
     private static Lock lock = new ReentrantLock();
+
+    private static Condition condition = lock.newCondition();
 
     //空闲池中可用的连接
     private static AtomicInteger connections;
@@ -57,20 +62,37 @@ public class DataSourcePool {
                 }
 
                 if(DBConnection.isActive(connection)){
-                    useConnection.add(connection);
+//                    useConnection.add(connection);
                     connections.addAndGet(1);
                 }else{
                     connection = DBConnection.getConnection();
                 }
             }else{
                 try {
-                    lock.wait(Integer.parseInt(DBConnection.properties.getProperty("dataSource.waitTime")));
+                    condition.await(Long.parseLong(DBConnection.properties.getProperty("dataSource.waitTime")), TimeUnit.SECONDS);
                     connection = getConnection();
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     log.error(e.getClass().getSimpleName(), e);
                 }
             }
         return connection;
+    }
+
+    public static synchronized void releaseConnection(Connection connection){
+        if(DBConnection.isActive(connection)){
+            if(freeConnnection.size() < Integer.parseInt(DBConnection.properties.getProperty("dataSource.maxConnections"))){
+                freeConnnection.add(connection);
+            }else{
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    log.error("关闭连接失败, 异常信息:{}",e.getClass().getSimpleName(), e);
+                }
+            }
+            connections.decrementAndGet();
+        }else{
+            log.error("关闭连接失败，连接已丢失");
+        }
     }
 
 }
