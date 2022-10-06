@@ -1,14 +1,10 @@
-package util;
+package pool;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.extern.slf4j.XSlf4j;
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author yujie
@@ -32,16 +29,18 @@ public class DBConnection {
 
     private static String pwd;
 
-    public static Map<String, Map<String, Field>> mapperMap = new HashMap<>();
+    public static Map<String, Map<String, Field>> mapperMap = new ConcurrentHashMap<>();
 
-    public static Map<String, Class> tableEntityMap = new HashMap<>();
+    public static Map<String, Class> tableEntityMap = new ConcurrentHashMap<>();
 
-    public static Map<String, Map<String,String>> tableFieldMap = new HashMap<>();
+    public static Map<String, Map<String,String>> tableFieldMap = new ConcurrentHashMap<>();
+
+    protected static Properties properties;
 
     static {
         try {
             log.info("数据库连接开始初始化");
-            Properties properties = new Properties();
+            properties = new Properties();
             properties.load(DBConnection.class.getClassLoader().getResourceAsStream("application.properties"));
             String driverName = properties.getProperty("driverName");
             url = properties.getProperty("dataSource.url");
@@ -110,6 +109,20 @@ public class DBConnection {
             log.error("获取连接失败, 异常信息为:{}", e.getClass().getSimpleName(), e);
         }
         return Optional.ofNullable(connection).orElseThrow(()->new RuntimeException("获取连接失败"));
+    }
+
+    public static Boolean isActive(Connection connection){
+        boolean closed = false;
+        try {
+            closed = connection.isClosed();
+        } catch (SQLException e) {
+            closed = true;
+            log.error(e.getClass().getSimpleName(), e);
+        }
+        if(connection == null || closed){
+            return false;
+        }
+        return true;
     }
 
 

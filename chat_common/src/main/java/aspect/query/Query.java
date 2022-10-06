@@ -18,6 +18,12 @@ import java.sql.ResultSet;
 @Slf4j
 public class Query  {
 
+    protected static CustomizeStatement customizeStatement = null;
+
+    static {
+        customizeStatement = new CustomizeStatementImpl();
+    }
+
     public static CustomizeStatement query(DslBuilder dslBuilder){
         CustomizeStatementImpl customizeStatement = new CustomizeStatementImpl();
         Object object = Proxy.newProxyInstance(customizeStatement.getClass().getClassLoader(), customizeStatement.getClass().getInterfaces(), new ConnectionHandler(customizeStatement, dslBuilder));

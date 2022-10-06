@@ -2,24 +2,15 @@ package aspect.handler;
 
 import aspect.query.dsl.DslBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import util.DBConnection;
+import pool.DBConnection;
+import pool.DataSourcePool;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +33,7 @@ public class ConnectionHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Connection connection = DBConnection.getConnection();
+        Connection connection = DataSourcePool.getConnection();
         ResultSet resultSet = (ResultSet) method.invoke(object, dslBuilder.transform(), connection);
         Map<String, Field> stringFieldMap = DBConnection.mapperMap.get(dslBuilder.getBasePath());
         Class aClass = DBConnection.tableEntityMap.get(dslBuilder.getBasePath());
@@ -62,6 +53,7 @@ public class ConnectionHandler implements InvocationHandler {
                 }
             });
         }
+        log.info("connection:{}", connection);
         log.info("执行sql:{}", dslBuilder.transform());
         return objectList;
     }

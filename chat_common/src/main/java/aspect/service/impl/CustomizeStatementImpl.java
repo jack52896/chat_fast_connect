@@ -21,7 +21,13 @@ public class CustomizeStatementImpl implements CustomizeStatement {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             return preparedStatement.executeQuery();
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            try {
+                log.info("出现异常开始回滚");
+                connection.rollback();
+            } catch (SQLException ex) {
+                log.error("回滚失败, 异常信息:{}",e.getClass().getSimpleName(), e);
+            }
             log.error(e.getClass().getSimpleName(), e);
         }
         return null;

@@ -1,6 +1,7 @@
 package domain;
 
 import lombok.Data;
+import pool.DBConnection;
 
 /**
  * @author yujie
