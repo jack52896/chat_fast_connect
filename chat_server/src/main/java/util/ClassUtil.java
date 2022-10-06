@@ -43,17 +43,21 @@ public class ClassUtil {
     }
 
     public static  void scan(String path){
-        File file = new File(Objects.requireNonNull(ClassUtil.class.getClassLoader().getResource(path)).getFile());
-        for (File listFile : Objects.requireNonNull(file.listFiles())) {
-            if(listFile.isDirectory()){
-                scan(path+"."+listFile);
-            }else{
-                if(!listFile.getName().endsWith(".class")){
-                    continue;
+        try {
+            File file = new File(Objects.requireNonNull(ClassUtil.class.getClassLoader().getResource(path.replaceAll("\\.", "/"))).getFile());
+            for (File listFile : Objects.requireNonNull(file.listFiles())) {
+                if(listFile.isDirectory()){
+                    scan(path+"."+listFile.getName());
+                }else{
+                    if(!listFile.getName().endsWith(".class")){
+                        continue;
+                    }
+                    String allFileName = path+"."+listFile.getName().replace(".class", "");
+                    checkMethod(allFileName);
                 }
-                String allFileName = path+"."+listFile.getName().replace(".class", "");
-                checkMethod(allFileName);
             }
+        } catch (Exception e) {
+            log.error("加载controller层失败:{}", e.getClass().getSimpleName(), e);
         }
     }
 
