@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class ClassUtil {
 
-    private static Map<String, HandlerMethod> map = new ConcurrentHashMap<>();
+    public static Map<String, HandlerMethod> map = new ConcurrentHashMap<>();
+
+    public static Map<Method, Object> methodObjectMap = new ConcurrentHashMap<>();
 
     private static Properties properties;
 
@@ -54,7 +57,7 @@ public class ClassUtil {
         }
     }
 
-    private static void checkMethod(String allFileName) {
+    private static synchronized void checkMethod(String allFileName) {
         try {
             Class<?> aClass = Class.forName(allFileName);
             if(!aClass.isAnnotationPresent(Controller.class)){
@@ -63,7 +66,24 @@ public class ClassUtil {
             Method[] methods = aClass.getDeclaredMethods();
             for (Method method : methods) {
                 if(method.isAnnotationPresent(RequestMapping.class)){
-//TODO
+                    String value = method.getAnnotation(RequestMapping.class).value();
+                    HandlerMethod handlerMethod = new HandlerMethod();
+                    handlerMethod.setUrl(value);
+                    handlerMethod.setMethod(method);
+                    if(Objects.nonNull(map.get(value))){
+                        throw new RuntimeException("请检查url路径是否重复:"+value);
+                    }
+                    map.put(value, handlerMethod);
+                    Optional.ofNullable(methodObjectMap.get(method)).ifPresentOrElse(o -> {
+                        throw new RuntimeException("路径重复注册");
+                    }, ()->{
+                        try {
+                            Object object = aClass.newInstance();
+                            methodObjectMap.put(method, object);
+                        } catch (Exception e) {
+                            log.error(e.getClass().getSimpleName(), e);
+                        }
+                    });
                 }
             }
         } catch (ClassNotFoundException e) {
