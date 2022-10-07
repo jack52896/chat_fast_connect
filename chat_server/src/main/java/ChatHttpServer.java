@@ -1,10 +1,8 @@
 import handler.HeartBeatHandler;
 import handler.HttpRequestHandler;
+import handler.netty.RpcRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -15,6 +13,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslHandler;
 import lombok.extern.slf4j.Slf4j;
 import pool.DataSourcePool;
+import util.PropertiesUtil;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -39,8 +38,9 @@ public class ChatHttpServer {
     }
 
     public static void start(){
-        String port = properties.getProperty("netty.port");
-        String property = properties.getProperty("dataSource.enable");
+        String port = PropertiesUtil.properties.getProperty("netty.port");
+        String property = PropertiesUtil.properties.getProperty("dataSource.enable");
+        String rpcstatus = PropertiesUtil.properties.getProperty("rpc.enable");
         if("true".equals(property)){
             new DataSourcePool();
         }
@@ -49,6 +49,7 @@ public class ChatHttpServer {
 //        SslHandler sslHandler = new SslHandler();
         HttpRequestHandler httpRequestHandler = new HttpRequestHandler();
         HeartBeatHandler heartBeatHandler = new HeartBeatHandler();
+        RpcRequestHandler rpcRequestHandler = new RpcRequestHandler();
         try {
             serverBootstrap
                     .group(eventLoopGroup)
@@ -57,12 +58,15 @@ public class ChatHttpServer {
                         @Override
                         protected void initChannel(NioSocketChannel channel) throws Exception {
                             //添加http解码器，解析http请求以及加入https
-                            channel.pipeline()
-//                                    .addLast("ssl", sslHandler);
-                                    .addLast("http server protocol", new HttpServerCodec())
-                                    .addLast("http object aggregator" , new HttpObjectAggregator(1024 * 10))
-                                    .addLast("http handler", httpRequestHandler)
-                                    .addLast("heart beat", heartBeatHandler);
+                            ChannelPipeline pipeline = channel.pipeline();
+                            pipeline.addLast("http server protocol", new HttpServerCodec());
+                            pipeline.addLast("http object aggregator" , new HttpObjectAggregator(1024 * 10));
+                            pipeline.addLast("http handler", httpRequestHandler);
+//                                    .addLast("rpc handler", rpcRequestHandler)
+                            if("true".equals(rpcstatus)){
+                                pipeline.addLast("rpc status", rpcRequestHandler);
+                            }
+                            pipeline.addLast("heart beat", heartBeatHandler);
                         }
                     }).bind(Integer.parseInt(port)).sync();
         } catch (InterruptedException e) {

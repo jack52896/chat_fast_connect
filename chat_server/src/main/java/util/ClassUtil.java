@@ -28,7 +28,7 @@ public class ClassUtil {
 
     public static Map<Method, Object> methodObjectMap = new ConcurrentHashMap<>();
 
-    private static Properties properties;
+    public static Properties properties;
 
     private static String path;
 
