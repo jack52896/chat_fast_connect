@@ -3,6 +3,7 @@ package handler;
 import annoation.RequestBody;
 import annoation.RequestParam;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -14,6 +15,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import util.ClassUtil;
+import util.JsonUtil;
 import util.URLUtil;
 
 import java.io.*;
@@ -82,25 +84,10 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
         Object result = null;
         try {
             String contentType = request.headers().get("Content-Type");
+            Class<?> aClass1 = null;
             switch (contentType){
                 case "application/x-www-form-urlencoded":{
-                    Class aClass1 = null;
-
-                    List<Parameter> parameterList = new ArrayList<>();
-                    Parameter[] parameters = method.getParameters();
-                    for (Parameter parameter : parameters) {
-                        if(parameter.isAnnotationPresent(RequestParam.class)){
-                            parameterList.add(parameter);
-                        }
-                    }
-                    if(parameterList.size() > 1){
-                        throw new RuntimeException("RequestParam注解只能存在一个");
-                    }
-                    if(!parameterList.isEmpty()){
-                        Parameter parameter = parameterList.get(0);
-                        aClass1 = Class.forName(parameter.getParameterizedType().getTypeName());
-                    }
-
+                    aClass1 = getaClass(method,RequestParam.class);
                     if(Objects.nonNull(aClass1)){
                         Object parameter = aClass1.newInstance();
                         Map<String, String> stringStringMap = URLUtil.formData(content);
@@ -124,22 +111,13 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
                     break;
                 }
                 case  "application/json":{
-                    //需要进行参数转换的结果 class集合
-                    ArrayList<Class<?>> classes = new ArrayList<>();
-                    Parameter[] parameters = method.getParameters();
-                    for (Parameter parameter : parameters) {
-                        if(parameter.isAnnotationPresent(RequestBody.class)){
-                            classes.add(Class.forName(parameter.getParameterizedType().getTypeName()));
-                        }
+                    aClass1  = getaClass(method, RequestBody.class);
+                    if(Objects.nonNull(aClass1)){
+                        Object param = JsonUtil.readFromJsonString(content, aClass1);
+                        result = method.invoke(object,param);
+                    }else{
+                        result = method.invoke(object);
                     }
-                    Object[] params = new Object[classes.size()];
-                    int i = 0;
-                    for (int j = 0; j < classes.size(); j++) {
-                        Class<?> aClass = classes.get(i);
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        params[i] = objectMapper.readValue(content,aClass);
-                    }
-                    result = method.invoke(object,params);
                 }
                 default:
             }
@@ -148,5 +126,30 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
             log.error("参数字段对应不正确，请检查:{}",e.getClass().getSimpleName(), e);
         }
         return result;
+    }
+
+    /**
+     * @Author linyu.dai
+     * @Description
+     * @Date 2022/10/7 16:09
+     * @Param []
+     * @return java.util.List<java.lang.reflect.Parameter>
+     */
+    private Class<?> getaClass(Method method, Class<? extends Annotation> annotationClass) throws ClassNotFoundException {
+        List<Parameter> parameterList = new ArrayList<>();
+        Parameter[] parameters = method.getParameters();
+        for (Parameter parameter : parameters) {
+            if(parameter.isAnnotationPresent(annotationClass)){
+                parameterList.add(parameter);
+            }
+        }
+        if(parameterList.size() > 1){
+            throw new RuntimeException("RequestParam注解只能存在一个");
+        }
+        if(!parameterList.isEmpty()){
+            Parameter parameter = parameterList.get(0);
+            return Class.forName(parameter.getParameterizedType().getTypeName());
+        }
+        return null;
     }
 }

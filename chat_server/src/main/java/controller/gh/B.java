@@ -3,7 +3,9 @@ package controller.gh;
 import annoation.Controller;
 import annoation.RequestBody;
 import annoation.RequestMapping;
+import domain.Student;
 import domain.User;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author yujie
@@ -11,6 +13,7 @@ import domain.User;
  * @description
  */
 @Controller
+@Slf4j
 public class B {
 
     @RequestMapping("/222")
@@ -20,7 +23,8 @@ public class B {
     }
 
     @RequestMapping("/json")
-    public String getJson(@RequestBody User user){
-        return "holle,world"+user.getId();
+    public String getJson(@RequestBody Student student){
+        log.info("Student: {}",student);
+        return "holle,world";
     }
 }
