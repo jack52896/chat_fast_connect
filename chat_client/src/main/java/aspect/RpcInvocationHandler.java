@@ -1,5 +1,6 @@
 package aspect;
 
+import handler.netty.RpcResponseHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.DefaultChannelPromise;
 import io.netty.util.concurrent.DefaultPromise;
@@ -41,6 +42,8 @@ public class RpcInvocationHandler implements InvocationHandler {
         Channel channel = RpcProxy.getChannel();
         channel.writeAndFlush(message);
         DefaultPromise<Object> promise = new DefaultPromise(channel.eventLoop());
+        RpcResponseHandler.promiseMap.put(message.getMessageId(), promise);
+        log.info("等待结果中");
         promise.await();
         if(promise.isSuccess()){
             return promise.getNow();

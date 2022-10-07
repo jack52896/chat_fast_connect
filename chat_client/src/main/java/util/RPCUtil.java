@@ -21,14 +21,12 @@ public class RPCUtil {
 
     private static String path;
 
-    private static List<String> serviceList;
 
     static {
         try {
             properties = new Properties();
             properties.load(RPCUtil.class.getClassLoader().getResourceAsStream("application.properties"));
             path = properties.getProperty("rpc.service.path");
-            serviceList = Arrays.asList(properties.getProperty("rpc.service.impl").split(","));
             scan(path);
         } catch (IOException e) {
             log.error(e.getClass().getSimpleName(), e);

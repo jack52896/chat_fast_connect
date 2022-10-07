@@ -45,7 +45,7 @@ public class RpcProxy {
 
     private static Channel channel = null;
 
-    public Object getRpcService(Class<?> clazz){
+    public static Object getRpcService(Class<?> clazz){
         return Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, new RpcInvocationHandler(getChannel(), clazz));
     }
 

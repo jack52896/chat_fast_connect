@@ -40,7 +40,6 @@ public class ChatHttpServer {
     public static void start(){
         String port = PropertiesUtil.properties.getProperty("netty.port");
         String property = PropertiesUtil.properties.getProperty("dataSource.enable");
-        String rpcstatus = PropertiesUtil.properties.getProperty("rpc.enable");
         if("true".equals(property)){
             new DataSourcePool();
         }
@@ -62,10 +61,7 @@ public class ChatHttpServer {
                             pipeline.addLast("http server protocol", new HttpServerCodec());
                             pipeline.addLast("http object aggregator" , new HttpObjectAggregator(1024 * 10));
                             pipeline.addLast("http handler", httpRequestHandler);
-//                                    .addLast("rpc handler", rpcRequestHandler)
-                            if("true".equals(rpcstatus)){
-                                pipeline.addLast("rpc status", rpcRequestHandler);
-                            }
+                            pipeline.addLast("rpc status", rpcRequestHandler);
                             pipeline.addLast("heart beat", heartBeatHandler);
                         }
                     }).bind(Integer.parseInt(port)).sync();
