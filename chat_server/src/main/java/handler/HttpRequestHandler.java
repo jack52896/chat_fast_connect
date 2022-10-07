@@ -1,5 +1,6 @@
 package handler;
 
+import annoation.RequestBody;
 import annoation.RequestParam;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -123,8 +124,24 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
                     break;
                 }
                 case  "application/json":{
-
+                    //需要进行参数转换的结果 class集合
+                    ArrayList<Class<?>> classes = new ArrayList<>();
+                    Parameter[] parameters = method.getParameters();
+                    for (Parameter parameter : parameters) {
+                        if(parameter.isAnnotationPresent(RequestBody.class)){
+                            classes.add(Class.forName(parameter.getParameterizedType().getTypeName()));
+                        }
+                    }
+                    Object[] params = new Object[classes.size()];
+                    int i = 0;
+                    for (int j = 0; j < classes.size(); j++) {
+                        Class<?> aClass = classes.get(i);
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        params[i] = objectMapper.readValue(content,aClass);
+                    }
+                    result = method.invoke(object,params);
                 }
+                default:
             }
 
         } catch (Exception e) {
