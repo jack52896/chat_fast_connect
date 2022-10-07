@@ -14,6 +14,7 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslHandler;
 import lombok.extern.slf4j.Slf4j;
+import pool.DataSourcePool;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -39,6 +40,10 @@ public class ChatHttpServer {
 
     public static void start(){
         String port = properties.getProperty("netty.port");
+        String property = properties.getProperty("dataSource.enable");
+        if("true".equals(property)){
+            new DataSourcePool();
+        }
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         ServerBootstrap serverBootstrap = new ServerBootstrap();
 //        SslHandler sslHandler = new SslHandler();
@@ -63,7 +68,7 @@ public class ChatHttpServer {
         } catch (InterruptedException e) {
             log.error("端口绑定失败, 异常信息:{}", e.getClass().getSimpleName(), e);
         }
-        log.info("netty start , port:{}", port);
+        log.info("server netty start , port:{}", port);
 
 
     }

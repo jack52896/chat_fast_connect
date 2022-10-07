@@ -2,6 +2,8 @@ package controller;
 
 import annoation.Controller;
 import annoation.RequestMapping;
+import annoation.RequestParam;
+import domain.User;
 
 /**
  * @author yujie
@@ -12,7 +14,7 @@ import annoation.RequestMapping;
 public class A {
 
     @RequestMapping("/lujing")
-    public String list(){
-        return "123";
+    public String list(@RequestParam("user") User user){
+        return String.valueOf(user.getId());
     }
 }

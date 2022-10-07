@@ -1,5 +1,6 @@
 package handler;
 
+import annoation.RequestParam;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
@@ -15,13 +16,13 @@ import util.ClassUtil;
 import util.URLUtil;
 
 import java.io.*;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.stomp.StompHeaders.CONTENT_LENGTH;
 import static io.netty.handler.codec.stomp.StompHeaders.CONTENT_TYPE;
@@ -51,16 +52,10 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void getResult(ChannelHandlerContext ctx, FullHttpRequest request, String content) {
-//        Map<String, String> stringStringMap = URLUtil.formData(content);
         Optional.ofNullable(ClassUtil.map.get(request.uri())).ifPresentOrElse(handlerMethod -> {
             Method method = handlerMethod.getMethod();
             Object object = Optional.ofNullable(ClassUtil.methodObjectMap.get(method)).orElseThrow(() -> new RuntimeException("请检查注解，注册失败"));
-            Object result = null;
-            try {
-                result = method.invoke(object);
-            } catch (Exception e) {
-                log.error(e.getClass().getSimpleName(), e);
-            }
+            Object result = getReturnObject(handlerMethod.getMethod(), request, content, object);
             ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -80,5 +75,61 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
             ctx.writeAndFlush(response);
             ctx.channel().close();
         });
+    }
+
+    public Object getReturnObject(Method method, FullHttpRequest request, String content, Object object){
+        Object result = null;
+        try {
+            String contentType = request.headers().get("Content-Type");
+            switch (contentType){
+                case "application/x-www-form-urlencoded":{
+                    Class aClass1 = null;
+
+                    List<Parameter> parameterList = new ArrayList<>();
+                    Parameter[] parameters = method.getParameters();
+                    for (Parameter parameter : parameters) {
+                        if(parameter.isAnnotationPresent(RequestParam.class)){
+                            parameterList.add(parameter);
+                        }
+                    }
+                    if(parameterList.size() > 1){
+                        throw new RuntimeException("RequestParam注解只能存在一个");
+                    }
+                    if(!parameterList.isEmpty()){
+                        Parameter parameter = parameterList.get(0);
+                        aClass1 = Class.forName(parameter.getParameterizedType().getTypeName());
+                    }
+
+                    if(Objects.nonNull(aClass1)){
+                        Object parameter = aClass1.newInstance();
+                        Map<String, String> stringStringMap = URLUtil.formData(content);
+                        Arrays.stream(aClass1.getDeclaredFields()).forEach(field -> {
+                            String value =  stringStringMap.get(field.getName());
+                            if(Objects.nonNull(value)){
+                                try {
+                                    Object resultValue = ClassUtil.getObject(field, value);
+                                    field.setAccessible(true);
+                                    field.set(parameter, resultValue);
+                                } catch (IllegalAccessException e) {
+                                    log.error("返回对象生成失败:{}",e.getClass().getSimpleName(), e);
+                                }
+                            }
+                        });
+                        result = method.invoke(object, parameter);
+                    }else{
+                        log.info("");
+                    }
+
+                    break;
+                }
+                case  "application/json":{
+
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("参数字段对应不正确，请检查:{}",e.getClass().getSimpleName(), e);
+        }
+        return result;
     }
 }
