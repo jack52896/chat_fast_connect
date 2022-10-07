@@ -117,7 +117,7 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
                         });
                         result = method.invoke(object, parameter);
                     }else{
-                        log.info("");
+                        result = method.invoke(object);
                     }
 
                     break;

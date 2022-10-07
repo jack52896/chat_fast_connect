@@ -13,6 +13,7 @@ public class B {
 
     @RequestMapping("/222")
     public String list(){
-        return "123";
+        String str = "{\"name\":\"123\"}";
+        return str + "123";
     }
 }
