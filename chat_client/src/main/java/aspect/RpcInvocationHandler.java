@@ -32,24 +32,31 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        RpcRequestMessage message = new RpcRequestMessage(
-                UUID.randomUUID().toString(),
-                clazz.getName(),
-                method.getName(),
-                method.getReturnType(),
-                method.getParameterTypes(),
-                args);
-        Channel channel = RpcProxy.getChannel();
-        channel.writeAndFlush(message);
-        DefaultPromise<Object> promise = new DefaultPromise(channel.eventLoop());
-        RpcResponseHandler.promiseMap.put(message.getMessageId(), promise);
-        log.info("已发送请求, 消息id为:{}", message.getMessageId());
-        promise.await();
-        if(promise.isSuccess()){
-            return promise.getNow();
-        }else{
-            log.error(promise.cause().getClass().getSimpleName(), promise.cause());
-            throw new RuntimeException(promise.cause());
+        try {
+            RpcRequestMessage message = new RpcRequestMessage(
+                    UUID.randomUUID().toString(),
+                    clazz.getName(),
+                    method.getName(),
+                    method.getReturnType(),
+                    method.getParameterTypes(),
+                    args);
+            Channel channel = RpcProxy.getChannel();
+            log.info("rpc connect :{}", channel);
+
+            channel.writeAndFlush(message).sync();
+            DefaultPromise<Object> promise = new DefaultPromise(channel.eventLoop());
+            RpcResponseHandler.promiseMap.put(message.getMessageId(), promise);
+            log.info("已发送请求, 消息id为:{}", message.getMessageId());
+            promise.await();
+            if(promise.isSuccess()){
+                return promise.getNow();
+            }else{
+                log.error(promise.cause().getClass().getSimpleName(), promise.cause());
+                throw new RuntimeException(promise.cause());
+            }
+        } catch (Exception e) {
+            log.error("发送消息失败：{}", e.getClass().getSimpleName(), e);
         }
+        return null;
     }
 }

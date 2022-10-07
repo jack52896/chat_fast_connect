@@ -36,6 +36,9 @@ public class RpcRequestMessage {
      */
     private Object[] parameterValue;
 
+    public RpcRequestMessage() {
+    }
+
     public RpcRequestMessage(String messageId, String interfaceName, String methodName, Class<?> returnType, Class[] parameterTypes, Object[] parameterValue) {
         this.messageId = messageId;
         this.interfaceName = interfaceName;

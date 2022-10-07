@@ -25,8 +25,6 @@ public class RpcRequestHandler extends ChannelInboundHandlerAdapter {
 
     public static Map<String, String> map = new ConcurrentHashMap();
 
-    public static String rpcstatus = null;
-
     static {
         Arrays.asList(PropertiesUtil.properties.getProperty("rpc.service.impl").split("\\|"))
                 .stream()
@@ -34,15 +32,11 @@ public class RpcRequestHandler extends ChannelInboundHandlerAdapter {
                     String[] split = s.split(",");
                     map.put(split[0], split[1]);
                 });
-        rpcstatus = PropertiesUtil.properties.getProperty("rpc.enable");
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         log.info("进入rpc控制器");
-//        if("false".equals(rpcstatus)){
-//            super.channelRead(ctx, msg);
-//        }
         if(msg instanceof RpcRequestMessage){
             RpcRequestMessage message = (RpcRequestMessage) msg;
             log.info("收到调用方请求, 消息id:{}", message.getMessageId());

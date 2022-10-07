@@ -49,7 +49,6 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
             byte[] bytes = new byte[byteBuf.readableBytes()];
             byteBuf.readBytes(bytes, 0, byteBuf.readableBytes());
             String content = new String(bytes, StandardCharsets.UTF_8);
-//            log.info("请求头的文本类型:{}, 请求的内容：{}", contentType, content);
             getResult(ctx, request, content);
         }
         super.channelRead(ctx, msg);

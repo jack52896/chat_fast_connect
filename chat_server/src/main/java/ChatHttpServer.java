@@ -60,7 +60,7 @@ public class ChatHttpServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
-                        protected void initChannel(NioSocketChannel channel) throws Exception {
+                        protected void initChannel(NioSocketChannel channel) {
                             //添加http解码器，解析http请求以及加入https
                             ChannelPipeline pipeline = channel.pipeline();
                             pipeline.addLast("http server protocol", new HttpServerCodec());
@@ -70,7 +70,7 @@ public class ChatHttpServer {
                             log.info("已成功加载控制器:{}", pipeline);
                         }
                     }).bind(Integer.parseInt(port)).sync();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             log.error("端口绑定失败, 异常信息:{}", e.getClass().getSimpleName(), e);
         }
         log.info("server netty start , port:{}", port);

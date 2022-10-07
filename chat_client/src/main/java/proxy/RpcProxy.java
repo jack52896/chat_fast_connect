@@ -7,9 +7,10 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
-import protocol.CustomizeProtocol;
+import protocol.decoder.RpcResponseDecoder;
+import protocol.encoder.RpcRequestEncoder;
+import protocol.encoder.RpcResponseEncoder;
 
-import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.util.Objects;
@@ -67,9 +68,10 @@ public class RpcProxy {
                     @Override
                     protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                         ChannelPipeline pipeline = nioSocketChannel.pipeline();
-                        pipeline
-                                .addLast(new CustomizeProtocol())
-                                .addLast(new RpcResponseHandler());
+                        pipeline.addLast("rpc server request protocol", new RpcRequestEncoder());
+                        pipeline.addLast("rpc server response protocol", new RpcResponseDecoder());
+                        pipeline.addLast("rpc server handler", new RpcResponseHandler());
+
                         log.info("已加载控制器:{}",pipeline);
                     }
                 });

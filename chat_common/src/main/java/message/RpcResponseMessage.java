@@ -23,6 +23,9 @@ public class RpcResponseMessage {
      */
     private Exception exceptionValue;
 
+    public RpcResponseMessage() {
+    }
+
     public RpcResponseMessage(String messageId, Object returnValue, Exception exceptionValue) {
         this.messageId = messageId;
         this.returnValue = returnValue;

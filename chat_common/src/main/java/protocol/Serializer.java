@@ -1,9 +1,13 @@
 package protocol;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 
 public interface Serializer {
 
@@ -47,12 +51,26 @@ public interface Serializer {
         json("json"){
             @Override
             public <T> byte[] encode(T t) {
-                return new byte[0];
+                ObjectMapper objectMapper = new ObjectMapper();
+                String s = null;
+                try {
+                    s = objectMapper.writeValueAsString(t);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                return Optional.ofNullable(s).orElseThrow(()->new RuntimeException("序列化失败")).getBytes(StandardCharsets.UTF_8);
             }
 
             @Override
             public <T> T decode(byte[] bytes) {
-                return null;
+                ObjectMapper objectMapper = new ObjectMapper();
+                Object object = null;
+                try {
+                    object = objectMapper.readValue(bytes, Object.class);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return (T) Optional.ofNullable(object).orElseThrow(()->new RuntimeException("反序列化失败"));
             }
         };
 
