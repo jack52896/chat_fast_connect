@@ -3,7 +3,6 @@ package protocol;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
-import java.util.List;
 import java.util.Objects;
 
 public interface Serializer {

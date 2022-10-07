@@ -1,14 +1,11 @@
 package protocol;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
 /**
@@ -17,6 +14,7 @@ import java.util.List;
  * @description
  */
 @Slf4j
+//@ChannelHandler.Sharable
 public class CustomizeProtocol extends ByteToMessageCodec<String> {
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, String s, ByteBuf byteBuf) throws Exception {
@@ -27,7 +25,7 @@ public class CustomizeProtocol extends ByteToMessageCodec<String> {
         //序列化算法 jackson / json
         byteBuf.writeByte(0);
         //报文类型
-        byteBuf.writeByte(2);
+        byteBuf.writeByte(1);
         byte[] bytes = Serializer.SerializerType.jackson.encode(s);
         byteBuf.writeInt(bytes.length);
         byteBuf.writeBytes(bytes);
@@ -44,7 +42,7 @@ public class CustomizeProtocol extends ByteToMessageCodec<String> {
         byteBuf.readBytes(bytes, 0 , length);
         Serializer.SerializerType type = Serializer.SerializerType.alias("jackson");
         Object message = type.decode(bytes);
-//        log.info("magicNumber:{}, version:{}, serializerType:{}, contentType:{}, length:{}, message:{}", magicNumber, version, serializerType, contentType, length, message);
+        log.info("magicNumber:{}, version:{}, serializerType:{}, contentType:{}, length:{}, message:{}", magicNumber, version, serializerType, contentType, length, message);
         list.add(message);
     }
 }

@@ -3,13 +3,11 @@ package proxy;
 import aspect.RpcInvocationHandler;
 import handler.netty.RpcResponseHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import protocol.CustomizeProtocol;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
@@ -68,11 +66,15 @@ public class RpcProxy {
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
-                        nioSocketChannel.pipeline()
+                        ChannelPipeline pipeline = nioSocketChannel.pipeline();
+                        pipeline
+                                .addLast(new CustomizeProtocol())
                                 .addLast(new RpcResponseHandler());
+                        log.info("已加载控制器:{}",pipeline);
                     }
                 });
         try {
+            log.info("连接至远程服务:{},{}", rpchost, rpcport);
             channelFuture = bootstrap.connect(new InetSocketAddress(rpchost, rpcport)).sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

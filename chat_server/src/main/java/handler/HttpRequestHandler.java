@@ -40,6 +40,7 @@ import static io.netty.handler.codec.stomp.StompHeaders.CONTENT_TYPE;
 public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        log.info("进入http控制器");
         if(msg instanceof FullHttpRequest){
             FullHttpRequest request = (FullHttpRequest) msg;
             String contentType = request.headers().get("Content-Type");
