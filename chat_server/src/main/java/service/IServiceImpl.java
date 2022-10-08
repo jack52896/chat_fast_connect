@@ -10,7 +10,7 @@ import annoation.RpcDiscovery;
 @RpcDiscovery("IService")
 public class IServiceImpl implements IService{
     @Override
-    public String test(){
-        return "21";
+    public String test(String msg){
+        return msg+"21";
     }
 }

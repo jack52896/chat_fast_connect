@@ -1,6 +1,7 @@
 package handler;
 
 import contain.ChannelClientBean;
+import contant.StaticContant;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -38,7 +39,7 @@ public class RpcPingReturnHandler extends ChannelInboundHandlerAdapter {
             if(pingMessage.getPingType() == PingMessage.PingType.RETURN_SERVICES){
                 ChannelClientBean.map = pingMessage.getMap();
             }
-            Promise<Object> promise = URLUtil.map.remove("1");
+            Promise<Object> promise = URLUtil.map.remove(StaticContant.WAIT_REGISTER_CENTER);
             promise.setSuccess(new Object());
         }
         super.channelRead(ctx, msg);

@@ -3,6 +3,7 @@ package proxy;
 import annoation.RpcDiscovery;
 import aspect.RpcInvocationHandler;
 import contain.ChannelClientBean;
+import contant.StaticContant;
 import handler.RpcPingReturnHandler;
 import handler.netty.RpcResponseHandler;
 import io.netty.bootstrap.Bootstrap;
@@ -80,10 +81,10 @@ public class RpcProxy {
     }
 
     public static Channel getChannel(String rpcServiceName) {
-        //todo 注册服务初始化之后，在获取map时报错 cause: 需要等待当前客户端与注册中心交互完毕
+        //todo 注册服务初始化之后，在获取map时报错 , cause: 需要等待当前客户端与注册中心交互完毕
         Channel channel = initRegisterChannel();
         DefaultPromise<Object> defaultPromise = new DefaultPromise<>(channel.eventLoop());
-        URLUtil.map.put("1", defaultPromise);
+        URLUtil.map.put(StaticContant.WAIT_REGISTER_CENTER, defaultPromise);
         try {
             defaultPromise.await();
         } catch (InterruptedException e) {

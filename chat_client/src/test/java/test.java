@@ -9,6 +9,6 @@ import service.IService;
 public class test {
     public static void main(String[] args) {
         IService rpcService = (IService) RpcProxy.getRpcService(IService.class);
-        System.out.println("结果是"+rpcService.test());
+        System.out.println("结果是"+rpcService.test("12312"));
     }
 }
