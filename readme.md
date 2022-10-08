@@ -28,11 +28,28 @@
 ### 原理说明
 本项目采用netty框架开发
 
+chat_common --数据库服务
 
+chat_server --web服务
+
+chat_client --rpc客户端
+
+chat_register_center --注册中心
+
+可以根据自己的需要引入对应的依赖
 ### 下载安装
 maven:
 ``` xml
-maven clean package
+maven clean install
+```
+之后在你的项目中引入对应模块的包
+```
+<dependency>
+    <groupId>org.example</groupId>
+    <artifactId>chat_common</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+
 ```
 
 [//]: # (&#40;说明项目的配置方法，android开源库多用Gradle导入&#41;)
