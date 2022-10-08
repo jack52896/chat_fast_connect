@@ -1,19 +1,14 @@
-import handler.HeartBeatHandler;
+import handler.netty.HeartBeatHandler;
 import handler.HttpRequestHandler;
-import handler.netty.RpcRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.ssl.SslHandler;
 import lombok.extern.slf4j.Slf4j;
 import pool.DataSourcePool;
-import protocol.CustomizeProtocol;
 import util.PropertiesUtil;
 
 import java.io.IOException;

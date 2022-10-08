@@ -6,9 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="chat_server" />
         <module name="chat_client" />
+        <module name="chat_server" />
         <module name="chat_common" />
+        <module name="chat_register_center" />
       </profile>
     </annotationProcessing>
   </component>

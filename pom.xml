@@ -12,6 +12,7 @@
         <module>chat_client</module>
         <module>chat_server</module>
         <module>chat_common</module>
+        <module>chat_register_center</module>
     </modules>
 
     <properties>

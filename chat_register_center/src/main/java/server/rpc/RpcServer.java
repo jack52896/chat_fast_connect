@@ -1,3 +1,5 @@
+package server.rpc;
+
 import handler.netty.HeartBeatHandler;
 import handler.netty.RpcRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -10,16 +12,17 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import protocol.decoder.RpcRequestDecoder;
 import protocol.encoder.RpcResponseEncoder;
+import util.PropertiesUtil;
 
 /**
  * @author yujie
- * @createTime 2022/10/7 19:47
+ * @createTime 2022/10/8 11:38
  * @description
  */
 @Slf4j
 public class RpcServer {
-
-    public static void start(int port){
+    public static void start(){
+        int port = Integer.parseInt(PropertiesUtil.properties.getProperty("register.port"));
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         try {
@@ -30,7 +33,7 @@ public class RpcServer {
                         @Override
                         protected void initChannel(NioSocketChannel channel) {
                             //添加http解码器，解析http请求以及加入https
-                            log.info("rpc connect :{}", channel);
+//                            log.info("rpc connect :{}", channel);
                             ChannelPipeline pipeline = channel.pipeline();
                             pipeline.addLast("rpc server request protocol", new RpcRequestDecoder());
                             pipeline.addLast("rpc server response protocol", new RpcResponseEncoder());
@@ -42,7 +45,7 @@ public class RpcServer {
         } catch (Exception e) {
             log.error("端口绑定失败, 异常信息:{}", e.getClass().getSimpleName(), e);
         }
-        log.info("server rpc start , port:{}", port);
+        log.info("server register rpc start , port:{}", port);
     }
-
 }
+

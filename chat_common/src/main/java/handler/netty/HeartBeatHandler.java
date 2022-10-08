@@ -1,4 +1,4 @@
-package handler;
+package handler.netty;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
