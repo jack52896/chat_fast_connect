@@ -18,7 +18,7 @@ public class RpcRequestMessage {
     /**
      * 调用的接口全限定名，服务端根据它找到实现
      */
-    private String interfaceName;
+    private String serviceName;
     /**
      * 调用接口中的方法名
      */
@@ -39,9 +39,9 @@ public class RpcRequestMessage {
     public RpcRequestMessage() {
     }
 
-    public RpcRequestMessage(String messageId, String interfaceName, String methodName, Class<?> returnType, Class[] parameterTypes, Object[] parameterValue) {
+    public RpcRequestMessage(String messageId, String serviceName, String methodName, Class<?> returnType, Class[] parameterTypes, Object[] parameterValue) {
         this.messageId = messageId;
-        this.interfaceName = interfaceName;
+        this.serviceName = serviceName;
         this.methodName = methodName;
         this.returnType = returnType;
         this.parameterTypes = parameterTypes;

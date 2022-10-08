@@ -6,6 +6,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
 import message.RpcRequestMessage;
 import message.RpcResponseMessage;
+import util.ClassUtil;
 import util.PropertiesUtil;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,8 +33,7 @@ public class RpcRequestHandler extends ChannelInboundHandlerAdapter {
             RpcRequestMessage message = (RpcRequestMessage) msg;
             log.info("收到调用方请求, 消息id:{}", message.getMessageId());
             try {
-                String serviceImplAllFileName = map.get(message.getInterfaceName());
-                Class<?> aClass = Class.forName(serviceImplAllFileName);
+                Class<?> aClass = ClassUtil.RpcServiceNameClazzMap.get(message.getServiceName());
                 Method method = aClass.getMethod(message.getMethodName(), message.getParameterTypes());
                 Object obj = aClass.newInstance();
                 Object invoke = method.invoke(obj, message.getParameterValue());

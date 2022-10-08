@@ -68,7 +68,6 @@ public class RpcProxy {
                         ChannelPipeline pipeline = nioSocketChannel.pipeline();
                         pipeline.addLast("rpc register server protocol", new PingProtocol());
                         pipeline.addLast("rpc server handler", new RpcPingReturnHandler());
-                        log.info("已加载控制器:{}",pipeline);
                     }
                 });
         try {
@@ -104,7 +103,6 @@ public class RpcProxy {
                         pipeline.addLast("rpc server request protocol", new RpcRequestEncoder());
                         pipeline.addLast("rpc server response protocol", new RpcResponseDecoder());
                         pipeline.addLast("rpc server handler", new RpcResponseHandler());
-                        log.info("已加载控制器:{}",pipeline);
                     }
                 });
         try {

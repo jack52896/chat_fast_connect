@@ -36,7 +36,6 @@ public class RpcServer {
                             pipeline.addLast("rpc server response protocol", new RpcResponseEncoder());
                             pipeline.addLast("rpc handler", new RpcRequestHandler());
                             pipeline.addLast("heart beat", new ClientHeartBeatHandler());
-                            log.info("已成功加载控制器:{}", pipeline);
                         }
                     }).bind(port).sync();
         } catch (Exception e) {

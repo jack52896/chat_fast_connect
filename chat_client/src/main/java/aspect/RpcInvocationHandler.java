@@ -1,5 +1,6 @@
 package aspect;
 
+import annoation.RpcDiscovery;
 import handler.netty.RpcResponseHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.DefaultChannelPromise;
@@ -34,15 +35,15 @@ public class RpcInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
+            String serviceName = clazz.getAnnotation(RpcDiscovery.class).value();
             RpcRequestMessage message = new RpcRequestMessage(
                     UUID.randomUUID().toString(),
-                    clazz.getName(),
+                    serviceName,
                     method.getName(),
                     method.getReturnType(),
                     method.getParameterTypes(),
                     args);
             Channel channel = RpcProxy.getChannel(rpcServiceName);
-            log.info("rpc connect :{}", channel);
 
             channel.writeAndFlush(message).sync();
             DefaultPromise<Object> promise = new DefaultPromise(channel.eventLoop());

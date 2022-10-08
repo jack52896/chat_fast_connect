@@ -64,7 +64,6 @@ public class ChatHttpServer {
                             pipeline.addLast("http server protocol", new HttpServerCodec());
                             pipeline.addLast("http object aggregator" , new HttpObjectAggregator(1024 * 10));
                             pipeline.addLast("http handler", httpRequestHandler);
-                            log.info("已成功加载控制器:{}", pipeline);
                         }
                     }).bind(Integer.parseInt(port)).sync();
         } catch (Exception e) {
