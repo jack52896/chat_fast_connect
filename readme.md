@@ -56,7 +56,7 @@ maven clean install
 
 ### application.properties配置示例
 ``` xml
-#htto请求端口
+#http请求端口
 netty.port=8080
 #web接口所在的包
 controller.path=controller
@@ -87,11 +87,11 @@ rpc.enable=true
 rpc.service.discovery.path=service
 #RPC端口
 rpc.port=8081
-#RPC注册中心是否开启
+#RPC注册中心是否开启(客户端)
 rpc.register.enbale=true
-#RPC注册中心ip
+#RPC注册中心ip(客户端)
 rpc.register.host=127.0.0.1
-#RPC注册中心port
+#RPC注册中心port(客户端)
 rpc.register.port=8089
 
 #注册中心端口
