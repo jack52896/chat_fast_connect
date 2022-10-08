@@ -1,3 +1,5 @@
+package server;
+
 import client.RegisterClient;
 import handler.HttpRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
