@@ -81,12 +81,24 @@ dataSource.maxActiveConnections=5
 # 数据连接等待时间
 dataSource.waitTime=1
 
-#是否开启rpc连接
+#是否开启RPC传输
 rpc.enable=true
-#rpc服务对应列表（后续版本会更新）
-rpc.service.impl=service.IService,service.IServiceImpl
-#rpc暴露端口
+#RPC服务注册目录
+rpc.service.discovery.path=service
+#RPC端口
 rpc.port=8081
+#RPC注册中心是否开启
+rpc.register.enbale=true
+#RPC注册中心ip
+rpc.register.host=127.0.0.1
+#RPC注册中心port
+rpc.register.port=8089
+
+#注册中心端口
+register.port=8089
+
+#注册中心http端口
+register.http.port=8090
 ```
 
 ### 注意事项
