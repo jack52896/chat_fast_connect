@@ -46,7 +46,19 @@ maven clean install
 ```
 <dependency>
     <groupId>org.example</groupId>
-    <artifactId>chat_common</artifactId>
+    <artifactId>chat_client</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+
+<dependency>
+    <groupId>org.example</groupId>
+    <artifactId>chat_server</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+
+<dependency>
+    <groupId>org.example</groupId>
+    <artifactId>chat_register_center</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
 
