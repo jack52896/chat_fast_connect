@@ -21,13 +21,14 @@ import java.util.UUID;
 @Slf4j
 public class RpcInvocationHandler implements InvocationHandler {
 
-    private Channel channel;
 
     private Class<?> clazz;
 
-    public RpcInvocationHandler(Channel channel, Class<?> clazz){
-        this.channel = channel;
+    private String rpcServiceName;
+
+    public RpcInvocationHandler(Class<?> clazz, String rpcServiceName){
         this.clazz = clazz;
+        this.rpcServiceName = rpcServiceName;
     }
 
     @Override
@@ -40,7 +41,7 @@ public class RpcInvocationHandler implements InvocationHandler {
                     method.getReturnType(),
                     method.getParameterTypes(),
                     args);
-            Channel channel = RpcProxy.getChannel();
+            Channel channel = RpcProxy.getChannel(rpcServiceName);
             log.info("rpc connect :{}", channel);
 
             channel.writeAndFlush(message).sync();

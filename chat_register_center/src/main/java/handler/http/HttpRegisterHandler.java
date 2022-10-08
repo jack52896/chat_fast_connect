@@ -1,6 +1,6 @@
 package handler.http;
 
-import handler.container.ChannleBean;
+import handler.container.ChannelBean;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,8 +12,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import protocol.Serializer;
 
-import java.nio.Buffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
@@ -29,7 +27,7 @@ public class HttpRegisterHandler extends ChannelInboundHandlerAdapter {
             FullHttpRequest request = (FullHttpRequest) msg;
             String contentType = request.headers().get("Content-Type");
             log.info("http协议版本号:{}, 请求的方式:{}, 请求的路径:{}, 请求头的文本类型:{}", request.protocolVersion(), request.method().name(),  request.uri(), contentType);
-            Set<String> strings = ChannleBean.listService();
+            Set<String> strings = ChannelBean.listService();
             byte[] encode = Serializer.SerializerType.json.encode(strings);
             ByteBuf byteBuf = ctx.alloc().buffer();
             byteBuf.writeBytes(encode);

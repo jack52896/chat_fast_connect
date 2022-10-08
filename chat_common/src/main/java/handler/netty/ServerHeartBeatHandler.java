@@ -23,11 +23,11 @@ public class ServerHeartBeatHandler extends ChannelInboundHandlerAdapter {
 //        log.info("超时未发送心跳包, 对应的channel:{}", ctx.channel().remoteAddress());
         switch (idleStateEvent.state()){
             case READER_IDLE:{
-                InetAddress addr = InetAddress.getLocalHost();
-                log.info("尝试向客户端发送心跳包, 并更新服务地址:{}, 服务器名称:{}", addr.getHostAddress(), addr.getHostName());
-                PingMessage pingMessage = new PingMessage(addr.getHostName(), addr.getHostAddress(), PropertiesUtil.properties.getProperty("register.port"));
-                //发送心跳包失败直接关闭通道
-                ctx.channel().writeAndFlush(pingMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+//                InetAddress addr = InetAddress.getLocalHost();
+//                log.info("尝试向客户端发送心跳包, 并更新服务地址:{}, 服务器名称:{}", addr.getHostAddress(), addr.getHostName());
+//                PingMessage pingMessage = new PingMessage(addr.getHostName(), addr.getHostAddress(), PropertiesUtil.properties.getProperty("register.port"));
+//                //发送心跳包失败直接关闭通道
+//                ctx.channel().writeAndFlush(pingMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
             }
             case WRITER_IDLE:{break;}
             case ALL_IDLE:{break;}

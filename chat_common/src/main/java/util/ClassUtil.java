@@ -6,7 +6,6 @@ import annoation.RpcDiscovery;
 import handler.HandlerMethod;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.naming.ldap.Control;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -44,7 +43,7 @@ public class ClassUtil {
             scan(path);
             if("true".equals(register)){
                 String servicePath = PropertiesUtil.properties.getProperty("rpc.service.discovery.path");
-                checkRpcDiscovery(servicePath);
+                scanRpc(servicePath);
             }
         } catch (IOException e) {
             log.error(e.getClass().getSimpleName(), e);

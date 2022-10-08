@@ -37,12 +37,12 @@ public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
 //        log.info("超时未发送心跳包, 对应的channel:{}", ctx.channel().remoteAddress());
         switch (idleStateEvent.state()){
             case READER_IDLE:{
-                String serviceName = PropertiesUtil.properties.getProperty("rpc.service.name");
-                InetAddress addr = InetAddress.getLocalHost();
-                log.info("尝试向服务器发送心跳包, 并更新服务地址:{}, 服务器名称:{}", addr.getHostAddress(), addr.getHostName());
-                PingMessage pingMessage = new PingMessage(serviceName, addr.getHostName(), addr.getHostAddress(), (String) PropertiesUtil.properties.getProperty("rpc.port"));
-                //发送心跳包失败直接关闭通道
-                ctx.channel().writeAndFlush(pingMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+//                String serviceName = PropertiesUtil.properties.getProperty("rpc.service.name");
+//                InetAddress addr = InetAddress.getLocalHost();
+//                log.info("尝试向服务器发送心跳包, 并更新服务地址:{}, 服务器名称:{}", addr.getHostAddress(), addr.getHostName());
+//                PingMessage pingMessage = new PingMessage(serviceName, addr.getHostName(), addr.getHostAddress(), (String) PropertiesUtil.properties.getProperty("rpc.port"));
+//                //发送心跳包失败直接关闭通道
+//                ctx.channel().writeAndFlush(pingMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
             }
             case WRITER_IDLE:{break;}
             case ALL_IDLE:{break;}

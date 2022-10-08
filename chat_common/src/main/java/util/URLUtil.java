@@ -1,5 +1,7 @@
 package util;
 
+import io.netty.util.concurrent.Promise;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +11,8 @@ import java.util.Map;
  * @description
  */
 public class URLUtil {
+
+    public static Map<String, Promise<Object>> map = new HashMap<>();
 
     public static Map<String, String> formData(String str){
         Map<String, String> map = new HashMap<>();

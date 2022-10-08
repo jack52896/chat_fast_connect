@@ -1,20 +1,27 @@
 package proxy;
 
+import annoation.RpcDiscovery;
 import aspect.RpcInvocationHandler;
+import contain.ChannelClientBean;
+import handler.RpcPingReturnHandler;
 import handler.netty.RpcResponseHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
+import message.PingMessage;
 import protocol.all.PingProtocol;
 import protocol.decoder.RpcResponseDecoder;
 import protocol.encoder.RpcRequestEncoder;
-import protocol.encoder.RpcResponseEncoder;
+import util.URLUtil;
 
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -43,19 +50,9 @@ public class RpcProxy {
         }
     }
 
-    private static Channel channel = null;
-
     public static Object getRpcService(Class<?> clazz){
-        return Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, new RpcInvocationHandler(getChannel(), clazz));
-    }
-
-    public static synchronized Channel getChannel(){
-        if(Objects.nonNull(channel)){
-            return channel;
-        }else{
-            channel = initRegisterChannel();
-            return channel;
-        }
+        String annoation = Optional.ofNullable(clazz.getAnnotation(RpcDiscovery.class)).orElseThrow(() -> new RuntimeException("no annoation")).value();
+        return Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, new RpcInvocationHandler(clazz, annoation));
     }
 
     private static Channel initRegisterChannel() {
@@ -70,21 +67,30 @@ public class RpcProxy {
                     protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                         ChannelPipeline pipeline = nioSocketChannel.pipeline();
                         pipeline.addLast("rpc register server protocol", new PingProtocol());
-                        pipeline.addLast("rpc server handler", new RpcResponseHandler());
+                        pipeline.addLast("rpc server handler", new RpcPingReturnHandler());
                         log.info("已加载控制器:{}",pipeline);
                     }
                 });
         try {
             log.info("连接至远程注册中心:{},{}", rpchost, rpcport);
-            channelFuture = bootstrap.connect(new InetSocketAddress(rpchost, rpcport)).sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            channelFuture = bootstrap.connect(new InetSocketAddress(rpchost, rpcport)).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+        } catch (Exception e) {
+            log.error("连接远程注册中心失败:{}",e.getClass().getSimpleName(), e);
         }
         return Optional.ofNullable(channelFuture).orElseThrow(()->new RuntimeException("连接rpc服务器失败")).channel();
     }
 
-
-    private static Channel initChannel(String rpchost, int rpcport) {
+    public static Channel getChannel(String rpcServiceName) {
+        //todo 注册服务初始化之后，在获取map时报错 cause: 需要等待当前客户端与注册中心交互完毕
+        Channel channel = initRegisterChannel();
+        DefaultPromise<Object> defaultPromise = new DefaultPromise<>(channel.eventLoop());
+        URLUtil.map.put("1", defaultPromise);
+        try {
+            defaultPromise.await();
+        } catch (InterruptedException e) {
+            log.error(e.getClass().getSimpleName(), e);
+        }
+        PingMessage pingMessage = Optional.ofNullable(ChannelClientBean.map.get(rpcServiceName)).orElseThrow(() -> new RuntimeException("远程服务不存在"));
         ChannelFuture channelFuture = null;
         Bootstrap bootstrap = new Bootstrap();
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
@@ -98,13 +104,12 @@ public class RpcProxy {
                         pipeline.addLast("rpc server request protocol", new RpcRequestEncoder());
                         pipeline.addLast("rpc server response protocol", new RpcResponseDecoder());
                         pipeline.addLast("rpc server handler", new RpcResponseHandler());
-
                         log.info("已加载控制器:{}",pipeline);
                     }
                 });
         try {
-            log.info("连接至远程服务:{},{}", rpchost, rpcport);
-            channelFuture = bootstrap.connect(new InetSocketAddress(rpchost, rpcport)).sync();
+            log.info("连接至远程服务:{},{}", pingMessage.getHostAddress(), pingMessage.getPort());
+            channelFuture = bootstrap.connect(new InetSocketAddress(pingMessage.getHostAddress(), Integer.parseInt(pingMessage.getPort()))).sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -43,7 +43,7 @@ public class PingMessage {
     }
 
     public enum PingType{
-        NONE_PACKAGE("空包"), PUSH_SERVICES("主动推送服务信息"), GET_SERVICES("申请获取服务"), RETURN_SERVICES("返回服务信息");
+        NONE_PACKAGE("空包"), PUSH_SERVICES("主动推送服务信息"), GET_SERVICES("主动拉取服务信息"), RETURN_SERVICES("返回服务信息");
         private String message;
         PingType(String message){
             this.message = message;
