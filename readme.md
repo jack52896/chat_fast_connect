@@ -101,9 +101,14 @@ register.port=8089
 register.http.port=8090
 ```
 
-### 注意事项
-比如混淆方法等
-
+### 启动代码示例
+```
+public class start {
+    public static void main(String[] args) {
+        Access.start();
+    }
+}
+```
 ### TODO（可选）
 注册中心 -v1.0已上线, 依赖导入
 ```

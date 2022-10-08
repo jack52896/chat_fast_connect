@@ -28,7 +28,6 @@ public class RpcRequestHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        log.info("进入rpc控制器");
         if(msg instanceof RpcRequestMessage){
             RpcRequestMessage message = (RpcRequestMessage) msg;
             log.info("收到调用方请求, 消息id:{}", message.getMessageId());
