@@ -1,7 +1,8 @@
 package server.rpc;
 
-import handler.netty.HeartBeatHandler;
-import handler.netty.RpcRequestHandler;
+import handler.netty.ClientHeartBeatHandler;
+import handler.netty.ServerHeartBeatHandler;
+import handler.rpc.RpcRegisterHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -9,10 +10,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
-import protocol.decoder.RpcRequestDecoder;
-import protocol.encoder.RpcResponseEncoder;
+import protocol.all.PingProtocol;
 import util.PropertiesUtil;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author yujie
@@ -32,16 +35,14 @@ public class RpcServer {
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel channel) {
-                            //添加http解码器，解析http请求以及加入https
-//                            log.info("rpc connect :{}", channel);
                             ChannelPipeline pipeline = channel.pipeline();
-                            pipeline.addLast("rpc server request protocol", new RpcRequestDecoder());
-                            pipeline.addLast("rpc server response protocol", new RpcResponseEncoder());
-                            pipeline.addLast("rpc handler", new RpcRequestHandler());
-                            pipeline.addLast("heart beat", new HeartBeatHandler());
-                            log.info("已成功加载控制器:{}", pipeline);
+                            pipeline.addLast(" ping protocol ", new PingProtocol());
+                            pipeline.addLast(new RpcRegisterHandler());
+                            pipeline.addLast(new IdleStateHandler(10, 10, 20, TimeUnit.SECONDS));
+                            pipeline.addLast(new ServerHeartBeatHandler());
                         }
                     }).bind(port).sync();
+            log.info("注册中心成功初始化");
         } catch (Exception e) {
             log.error("端口绑定失败, 异常信息:{}", e.getClass().getSimpleName(), e);
         }

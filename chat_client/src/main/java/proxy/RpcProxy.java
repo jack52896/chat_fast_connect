@@ -7,6 +7,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import protocol.all.PingProtocol;
 import protocol.decoder.RpcResponseDecoder;
 import protocol.encoder.RpcRequestEncoder;
 import protocol.encoder.RpcResponseEncoder;
@@ -35,8 +36,8 @@ public class RpcProxy {
         try {
             properties = new Properties();
             properties.load(RpcProxy.class.getClassLoader().getResourceAsStream("application.properties"));
-            rpcport = Integer.parseInt(properties.getProperty("rpc.port"));
-            rpchost = properties.getProperty("rpc.host");
+            rpcport = Integer.parseInt(properties.getProperty("rpc.register.port"));
+            rpchost = properties.getProperty("rpc.register.host");
         } catch (Exception e) {
             log.error(e.getClass().getSimpleName(), e);
         }
@@ -52,12 +53,38 @@ public class RpcProxy {
         if(Objects.nonNull(channel)){
             return channel;
         }else{
-            channel = initChannel();
+            channel = initRegisterChannel();
             return channel;
         }
     }
 
-    private static Channel initChannel() {
+    private static Channel initRegisterChannel() {
+        ChannelFuture channelFuture = null;
+        Bootstrap bootstrap = new Bootstrap();
+        EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+        bootstrap
+                .group(eventLoopGroup)
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<NioSocketChannel>() {
+                    @Override
+                    protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
+                        ChannelPipeline pipeline = nioSocketChannel.pipeline();
+                        pipeline.addLast("rpc register server protocol", new PingProtocol());
+                        pipeline.addLast("rpc server handler", new RpcResponseHandler());
+                        log.info("已加载控制器:{}",pipeline);
+                    }
+                });
+        try {
+            log.info("连接至远程注册中心:{},{}", rpchost, rpcport);
+            channelFuture = bootstrap.connect(new InetSocketAddress(rpchost, rpcport)).sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return Optional.ofNullable(channelFuture).orElseThrow(()->new RuntimeException("连接rpc服务器失败")).channel();
+    }
+
+
+    private static Channel initChannel(String rpchost, int rpcport) {
         ChannelFuture channelFuture = null;
         Bootstrap bootstrap = new Bootstrap();
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();

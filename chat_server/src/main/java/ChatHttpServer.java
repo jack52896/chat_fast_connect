@@ -1,4 +1,4 @@
-import handler.netty.HeartBeatHandler;
+import client.RegisterClient;
 import handler.HttpRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -38,17 +38,21 @@ public class ChatHttpServer {
         String property = PropertiesUtil.properties.getProperty("dataSource.enable");
         String rpcstatus = PropertiesUtil.properties.getProperty("rpc.enable");
         String rpcport = PropertiesUtil.properties.getProperty("rpc.port");
+        String regsiterHost = PropertiesUtil.properties.getProperty("rpc.register.host");
+        String regsiterPort = PropertiesUtil.properties.getProperty("rpc.register.port");
+        String regsiteStatus = PropertiesUtil.properties.getProperty("rpc.register.enbale");
         if("true".equals(property)){
             new DataSourcePool();
         }
         if("true".equals(rpcstatus)){
             RpcServer.start(Integer.parseInt(rpcport));
         }
+        if("true".equals(regsiteStatus)){
+            Channel start = new RegisterClient(regsiterHost, Integer.parseInt(regsiterPort)).start();
+        }
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         ServerBootstrap serverBootstrap = new ServerBootstrap();
-//        SslHandler sslHandler = new SslHandler();
         HttpRequestHandler httpRequestHandler = new HttpRequestHandler();
-        HeartBeatHandler heartBeatHandler = new HeartBeatHandler();
         try {
             serverBootstrap
                     .group(eventLoopGroup)
@@ -56,12 +60,10 @@ public class ChatHttpServer {
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel channel) {
-                            //添加http解码器，解析http请求以及加入https
                             ChannelPipeline pipeline = channel.pipeline();
                             pipeline.addLast("http server protocol", new HttpServerCodec());
                             pipeline.addLast("http object aggregator" , new HttpObjectAggregator(1024 * 10));
                             pipeline.addLast("http handler", httpRequestHandler);
-                            pipeline.addLast("heart beat", heartBeatHandler);
                             log.info("已成功加载控制器:{}", pipeline);
                         }
                     }).bind(Integer.parseInt(port)).sync();
