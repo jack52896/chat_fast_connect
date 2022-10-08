@@ -40,7 +40,7 @@ public class ChatHttpServer {
         String rpcport = PropertiesUtil.properties.getProperty("rpc.port");
         String regsiterHost = PropertiesUtil.properties.getProperty("rpc.register.host");
         String regsiterPort = PropertiesUtil.properties.getProperty("rpc.register.port");
-        String regsiteStatus = PropertiesUtil.properties.getProperty("rpc.register.enbale");
+        String regsiteStatus = PropertiesUtil.properties.getProperty("rpc.register.enable");
         if("true".equals(property)){
             new DataSourcePool();
         }

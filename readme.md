@@ -105,7 +105,14 @@ register.http.port=8090
 比如混淆方法等
 
 ### TODO（可选）
-目前注册中心存在问题，引入时请去掉相关的依赖，关闭rpc配置
+注册中心 -v1.0已上线, 依赖导入
+```
+<dependency>
+    <groupId>org.example</groupId>
+    <artifactId>chat_register_center</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
 
 ## License
-遵守的协议
+遵守的协议 MulanPSL-2.0
