@@ -3,6 +3,7 @@ package handler.container;
 import message.PingMessage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,15 +14,16 @@ import java.util.Set;
  */
 public class ChannelBean {
 
-    public static Map<String, PingMessage> map ;
-    static {
-        map = new HashMap<>();
-    }
+    /**
+     * k - ip+port
+     * v - applicationName
+     */
+    public static Map<String, String> addressAppMap = new HashMap<>();
 
     /**
-     * 获取服务列表
+     * k - applicationName
+     * v - pingMessage
      */
-    public static Set<String> listService(){
-        return map.keySet();
-    }
+    public static Map<String, PingMessage> appServiceMap = new HashMap<>();
+
 }

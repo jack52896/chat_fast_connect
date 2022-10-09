@@ -33,6 +33,8 @@ public class RpcResponseHandler extends ChannelInboundHandlerAdapter {
                 Exception exceptionValue = responseMessage.getExceptionValue();
                 if(Objects.nonNull(exceptionValue)){
                     promise.setFailure(exceptionValue);
+
+                    //DUBBO
                 }else{
                     promise.setSuccess(returnValue);
                 }

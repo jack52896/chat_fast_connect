@@ -27,7 +27,7 @@ public class HttpRegisterHandler extends ChannelInboundHandlerAdapter {
             FullHttpRequest request = (FullHttpRequest) msg;
             String contentType = request.headers().get("Content-Type");
             log.info("http协议版本号:{}, 请求的方式:{}, 请求的路径:{}, 请求头的文本类型:{}", request.protocolVersion(), request.method().name(),  request.uri(), contentType);
-            byte[] encode = Serializer.SerializerType.json.encode(ChannelBean.map);
+            byte[] encode = Serializer.SerializerType.json.encode(ChannelBean.appServiceMap);
             ByteBuf byteBuf = ctx.alloc().buffer();
             byteBuf.writeBytes(encode);
             FullHttpResponse response = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.OK, byteBuf);

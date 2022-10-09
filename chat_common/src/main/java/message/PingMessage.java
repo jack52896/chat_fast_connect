@@ -2,7 +2,10 @@ package message;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author yujie
@@ -12,11 +15,16 @@ import java.util.Map;
 @Data
 public class PingMessage {
 
-    private String messageId;
+    private String messageId = UUID.randomUUID().toString();
 
     private PingType pingType;
 
-    private String serviceName;
+    private String error;
+
+    /**
+     * 实例名称
+     */
+    private String applicationName;
 
     private String hostName;
 
@@ -24,26 +32,18 @@ public class PingMessage {
 
     private String port;
 
-    private Map<String, PingMessage> map;
+    private String address;
+
+    /**
+     * K- 所有的服务
+     */
+    private Set<String> serviceNames;
 
     public PingMessage() {
     }
 
-    public PingMessage(String serviceName, String hostName, String hostAddress, String port) {
-        this.serviceName = serviceName;
-        this.hostName = hostName;
-        this.hostAddress = hostAddress;
-        this.port = port;
-    }
-
-    public PingMessage(String hostName, String hostAddress, String port) {
-        this.hostName = hostName;
-        this.hostAddress = hostAddress;
-        this.port = port;
-    }
-
     public enum PingType{
-        NONE_PACKAGE("空包"), PUSH_SERVICES("主动推送服务信息"), GET_SERVICES("主动拉取服务信息"), RETURN_SERVICES("返回服务信息");
+        ERROR_PACKAGE("错误信息"), SIGNALL("确认服务是否存活"),NONE_PACKAGE("空包"), PUSH_SERVICES("主动推送服务信息"), GET_SERVICES("主动拉取服务信息"), RETURN_SERVICES("返回服务信息");
         private String message;
         PingType(String message){
             this.message = message;

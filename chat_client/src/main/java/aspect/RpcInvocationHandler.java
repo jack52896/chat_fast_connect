@@ -43,7 +43,7 @@ public class RpcInvocationHandler implements InvocationHandler {
                     method.getReturnType(),
                     method.getParameterTypes(),
                     args);
-            Channel channel = RpcProxy.getChannel(rpcServiceName);
+            Channel channel = RpcProxy.getChannel();
 
             channel.writeAndFlush(message).sync();
             DefaultPromise<Object> promise = new DefaultPromise(channel.eventLoop());

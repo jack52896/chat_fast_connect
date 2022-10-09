@@ -1,6 +1,5 @@
 package handler;
 
-import contain.ChannelClientBean;
 import contant.StaticContant;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,6 +7,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import message.PingMessage;
+import util.PropertiesUtil;
 import util.URLUtil;
 
 import java.util.HashMap;
@@ -27,9 +27,11 @@ public class RpcPingReturnHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("成功连接至注册中心，发送主动拉取服务请求");
+        String applicationName = PropertiesUtil.properties.getProperty("rpc.application.name");
         PingMessage pingMessage = new PingMessage();
-        pingMessage.setMessageId(UUID.randomUUID().toString());
         pingMessage.setPingType(PingMessage.PingType.GET_SERVICES);
+        pingMessage.setMessageId(UUID.randomUUID().toString());
+        pingMessage.setApplicationName(applicationName);
         ctx.channel().writeAndFlush(pingMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
         super.channelActive(ctx);
     }
@@ -39,10 +41,11 @@ public class RpcPingReturnHandler extends ChannelInboundHandlerAdapter {
         if(msg instanceof PingMessage){
             PingMessage pingMessage = (PingMessage) msg;
             if(pingMessage.getPingType() == PingMessage.PingType.RETURN_SERVICES){
-                ChannelClientBean.map = pingMessage.getMap();
+                log.error("收到注册中心返回的服务信息:{}", pingMessage);
+                Promise<Object> promise = URLUtil.map.remove(StaticContant.WAIT_REGISTER_CENTER);
+                promise.setSuccess(pingMessage);
             }
-            Promise<Object> promise = URLUtil.map.remove(StaticContant.WAIT_REGISTER_CENTER);
-            promise.setSuccess(new Object());
+
         }
         super.channelRead(ctx, msg);
     }

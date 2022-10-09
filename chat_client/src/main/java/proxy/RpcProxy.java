@@ -2,7 +2,6 @@ package proxy;
 
 import annoation.RpcDiscovery;
 import aspect.RpcInvocationHandler;
-import contain.ChannelClientBean;
 import contant.StaticContant;
 import handler.RpcPingReturnHandler;
 import handler.netty.RpcResponseHandler;
@@ -80,7 +79,7 @@ public class RpcProxy {
         return Optional.ofNullable(channelFuture).orElseThrow(()->new RuntimeException("连接rpc服务器失败")).channel();
     }
 
-    public static Channel getChannel(String rpcServiceName) {
+    public static Channel getChannel() {
         //todo 注册服务初始化之后，在获取map时报错 , cause: 需要等待当前客户端与注册中心交互完毕
         Channel channel = initRegisterChannel();
         DefaultPromise<Object> defaultPromise = new DefaultPromise<>(channel.eventLoop());
@@ -90,7 +89,7 @@ public class RpcProxy {
         } catch (InterruptedException e) {
             log.error(e.getClass().getSimpleName(), e);
         }
-        PingMessage pingMessage = Optional.ofNullable(ChannelClientBean.map.get(rpcServiceName)).orElseThrow(() -> new RuntimeException("远程服务不存在"));
+        PingMessage pingMessage = (PingMessage) defaultPromise.getNow();
         ChannelFuture channelFuture = null;
         Bootstrap bootstrap = new Bootstrap();
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();

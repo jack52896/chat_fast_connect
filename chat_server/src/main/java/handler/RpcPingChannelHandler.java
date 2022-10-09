@@ -11,7 +11,9 @@ import util.PropertiesUtil;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.*;
 
 /**
  * @author yujie
@@ -21,24 +23,26 @@ import java.util.UUID;
 @Slf4j
 public class RpcPingChannelHandler extends ChannelInboundHandlerAdapter {
 
+    private static ScheduledExecutorService service = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors());
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        service.scheduleAtFixedRate(()->{
+            PingMessage pingMessage = new PingMessage();
+            pingMessage.setPingType(PingMessage.PingType.NONE_PACKAGE);
+            ctx.writeAndFlush(pingMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+        }, 1, 2, TimeUnit.SECONDS);
         InetAddress addr = InetAddress.getLocalHost();
-        PingMessage pingMessage = new PingMessage();
-        pingMessage.setMessageId(UUID.randomUUID().toString());
-        pingMessage.setPingType(PingMessage.PingType.PUSH_SERVICES);
-        pingMessage.setHostName(addr.getHostName());
-        pingMessage.setPort(PropertiesUtil.properties.getProperty("rpc.port"));
-        pingMessage.setHostAddress(addr.getHostAddress());
-
-        Map<String, PingMessage> map = new HashMap<>();
-        ClassUtil.RpcServiceNameClazzMap.forEach((k, v)->{
-            map.put(k, pingMessage);
-        });
         PingMessage pushMessage = new PingMessage();
-        pushMessage.setMessageId(UUID.randomUUID().toString());
         pushMessage.setPingType(PingMessage.PingType.PUSH_SERVICES);
-        pushMessage.setMap(map);
+        pushMessage.setHostName(addr.getHostName());
+        String serverPort = PropertiesUtil.properties.getProperty("rpc.port");
+        pushMessage.setPort(serverPort);
+        pushMessage.setHostAddress(addr.getHostAddress());
+        pushMessage.setAddress(addr.getHostAddress()+":"+serverPort);
+        Set<String> strings = ClassUtil.RpcServiceNameClazzMap.keySet();
+        pushMessage.setServiceNames(strings);
+        pushMessage.setApplicationName(PropertiesUtil.properties.getProperty("application.name"));
         ctx.channel().writeAndFlush(pushMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
         log.info("服务端成功推送消息到注册中心:{}", pushMessage);
         super.channelActive(ctx);
@@ -46,6 +50,18 @@ public class RpcPingChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if(msg instanceof PingMessage){
+            PingMessage pingMessage = new PingMessage();
+            if(pingMessage.getPingType() == PingMessage.PingType.ERROR_PACKAGE){
+                log.error("将服务注册到注册中心时报错:{}", pingMessage.getError());
+            }else if(pingMessage.getPingType() == PingMessage.PingType.SIGNALL){
+                service.scheduleAtFixedRate(()->{
+                    PingMessage message = new PingMessage();
+                    message.setPingType(PingMessage.PingType.NONE_PACKAGE);
+                    ctx.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+                }, 1, 2, TimeUnit.SECONDS);
+            }
+        }
         super.channelRead(ctx, msg);
     }
 }
