@@ -110,10 +110,10 @@ dataSource.maxActiveConnections=5
 # 数据连接等待时间
 dataSource.waitTime=1
 
-#RPC服务注册目录
+#RPC服务注册目录（服务端）
 rpc.service.discovery.path=service
 
-#RPC端口
+#RPC端口（服务端）
 rpc.port=8081
 
 #RPC注册中心ip(客户端)
@@ -128,10 +128,10 @@ register.port=8089
 #注册中心http端口
 register.http.port=8090
 
-#需要调用的服务名
+#需要调用的服务名(客户端)
 rpc.application.name=server1
 
-#服务名称
+#服务名称（服务端）
 application.name=server1
 ```
 
