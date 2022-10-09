@@ -111,6 +111,12 @@ register.port=8089
 
 #注册中心http端口
 register.http.port=8090
+
+#需要调用的服务名
+rpc.application.name=server1
+
+#服务名称
+application.name=server1
 ```
 
 ### 启动代码示例
