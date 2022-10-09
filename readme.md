@@ -28,13 +28,13 @@
 ### 原理说明
 本项目采用netty框架开发
 
-chat_common --数据库服务
+数据库服务 chat_common
 
-chat_server --web服务
+web服务 chat_server
 
-chat_client --rpc客户端
+rpc客户端 chat_client
 
-chat_register_center --注册中心
+注册中心 chat_register_center
 
 可以根据自己的需要引入对应的依赖
 ### 下载安装
@@ -67,42 +67,58 @@ maven clean install
 [//]: # (&#40;说明项目的配置方法，android开源库多用Gradle导入&#41;)
 
 ### application.properties配置示例
-``` xml
-#http请求端口
-netty.port=8080
-#web接口所在的包
-controller.path=controller
+``` 
 #是否主动开启数据库连接
 dataSource.enable=true
-#数据库驱动
-driverName=com.mysql.cj.jdbc.Driver
-#数据库连接
-dataSource.url=jdbc:mysql://127.0.0.1:3306/chat?characterEncoding=UTF-8
-#数据库用户
-dataSource.userName=root
-#数据库密码
-dataSource.pwd=admin
-#数据库映射文件目录
-application.mapper.classPath=mapper.xml
-# 初始化连接池
-dataSource.initConnections=1
-# 最大的连接池
-dataSource.maxConnections=5
-# 可支持最大的连接数
-dataSource.maxActiveConnections=5
-# 数据连接等待时间
-dataSource.waitTime=1
 
 #是否开启RPC传输
 rpc.enable=true
+
+#是否连接RPC注册中心(客户端)
+rpc.register.enbale=true
+
+#http请求端口
+netty.port=8080
+
+#web接口所在的包
+controller.path=controller
+
+#数据库驱动
+driverName=com.mysql.cj.jdbc.Driver
+
+#数据库连接
+dataSource.url=jdbc:mysql://127.0.0.1:3306/chat?characterEncoding=UTF-8
+
+#数据库用户
+dataSource.userName=root
+
+#数据库密码
+dataSource.pwd=admin
+
+#数据库映射文件目录
+application.mapper.classPath=mapper.xml
+
+# 初始化连接池
+dataSource.initConnections=1
+
+# 最大的连接池
+dataSource.maxConnections=5
+
+# 可支持最大的连接数
+dataSource.maxActiveConnections=5
+
+# 数据连接等待时间
+dataSource.waitTime=1
+
 #RPC服务注册目录
 rpc.service.discovery.path=service
+
 #RPC端口
 rpc.port=8081
-#RPC注册中心是否开启(客户端)
-rpc.register.enbale=true
+
 #RPC注册中心ip(客户端)
 rpc.register.host=127.0.0.1
+
 #RPC注册中心port(客户端)
 rpc.register.port=8089
 
