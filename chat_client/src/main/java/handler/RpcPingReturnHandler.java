@@ -12,6 +12,7 @@ import util.URLUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author yujie
@@ -27,6 +28,7 @@ public class RpcPingReturnHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("成功连接至注册中心，发送主动拉取服务请求");
         PingMessage pingMessage = new PingMessage();
+        pingMessage.setMessageId(UUID.randomUUID().toString());
         pingMessage.setPingType(PingMessage.PingType.GET_SERVICES);
         ctx.channel().writeAndFlush(pingMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
         super.channelActive(ctx);

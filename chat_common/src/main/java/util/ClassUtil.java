@@ -39,7 +39,7 @@ public class ClassUtil {
             properties = new Properties();
             properties.load(ClassUtil.class.getClassLoader().getResourceAsStream("application.properties"));
             path = properties.getProperty("controller.path");
-            String register = PropertiesUtil.properties.getProperty("rpc.register.enbale");
+            String register = PropertiesUtil.properties.getProperty("rpc.register.enable");
             scan(path);
             if("true".equals(register)){
                 String servicePath = PropertiesUtil.properties.getProperty("rpc.service.discovery.path");
