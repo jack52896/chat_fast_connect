@@ -1,6 +1,7 @@
 package service;
 
 import annoation.RpcDiscovery;
+import domain.User;
 
 /**
  * @author yujie
@@ -10,7 +11,7 @@ import annoation.RpcDiscovery;
 @RpcDiscovery("IService")
 public class IServiceImpl implements IService{
     @Override
-    public String test(String msg){
+    public String test(User msg){
         return msg+"21";
     }
 }

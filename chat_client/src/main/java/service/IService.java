@@ -4,5 +4,5 @@ import annoation.RpcDiscovery;
 
 @RpcDiscovery("IService")
 public interface IService {
-    String test(String msg);
+    String test(User msg);
 }

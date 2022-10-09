@@ -1,5 +1,6 @@
 package handler.netty;
 
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -13,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -42,8 +44,12 @@ public class RpcRequestHandler extends ChannelInboundHandlerAdapter {
                         null);
                 ctx.writeAndFlush(responseMessage);
                 log.info("消息处理完毕:{}", responseMessage);
-                //TODO
             } catch (Exception e) {
+                RpcResponseMessage responseMessage = new RpcResponseMessage(
+                        message.getMessageId(),
+                        null,
+                        e);
+                ctx.channel().writeAndFlush(responseMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
                 log.error("客户端发送的rpc调用失败, 请联系调用方, 消息id:{}, 异常信息:{}",message.getMessageId(), e.getClass().getSimpleName(), e);
             }
         }

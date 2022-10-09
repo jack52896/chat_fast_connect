@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.codec.MessageToByteEncoder;
+import lombok.extern.slf4j.Slf4j;
 import message.RpcResponseMessage;
 import protocol.Serializer;
 
@@ -16,18 +17,23 @@ import java.util.List;
  * @createTime 2022/10/7 20:35
  * @description
  */
+@Slf4j
 public class RpcResponseEncoder extends MessageToByteEncoder<RpcResponseMessage> {
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, RpcResponseMessage rpcRequestMessage, ByteBuf byteBuf) throws Exception {
-        //魔数
-        byteBuf.writeBytes(new byte[]{1, 2 , 3, 4});
-        //版本号
-        byteBuf.writeByte(1);
-        //序列化算法 jackson / json
-        byteBuf.writeByte(1);
-        byte[] bytes = Serializer.SerializerType.json.encode(rpcRequestMessage);
-        byteBuf.writeInt(bytes.length);
-        byteBuf.writeBytes(bytes);
+        try {
+            //魔数
+            byteBuf.writeBytes(new byte[]{1, 2 , 3, 4});
+            //版本号
+            byteBuf.writeByte(1);
+            //序列化算法 jackson / json
+            byteBuf.writeByte(1);
+            byte[] bytes = Serializer.SerializerType.json.encode(rpcRequestMessage);
+            byteBuf.writeInt(bytes.length);
+            byteBuf.writeBytes(bytes);
+        } catch (Exception e) {
+            log.error("序列化失败:{}",e.getClass().getSimpleName(), e);
+        }
     }
 
 //    @Override

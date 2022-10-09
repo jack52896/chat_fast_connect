@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.extern.slf4j.Slf4j;
 import message.RpcResponseMessage;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.util.List;
  * @createTime 2022/10/7 20:35
  * @description
  */
+@Slf4j
 public class RpcResponseDecoder extends ByteToMessageDecoder {
 //    @Override
 //    protected void encode(ChannelHandlerContext channelHandlerContext, RpcResponseMessage rpcRequestMessage, ByteBuf byteBuf) throws Exception {
@@ -31,18 +33,18 @@ public class RpcResponseDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-        int magicNumber = byteBuf.readInt();
-        byte version = byteBuf.readByte();
-        byte serializerType = byteBuf.readByte();
-        int length = byteBuf.readInt();
-        byte[] bytes = new byte[length];
-        byteBuf.readBytes(bytes, 0 , length);
-        ObjectMapper objectMapper = new ObjectMapper();
         RpcResponseMessage responseMessage = null;
         try {
+            int magicNumber = byteBuf.readInt();
+            byte version = byteBuf.readByte();
+            byte serializerType = byteBuf.readByte();
+            int length = byteBuf.readInt();
+            byte[] bytes = new byte[length];
+            byteBuf.readBytes(bytes, 0 , length);
+            ObjectMapper objectMapper = new ObjectMapper();
             responseMessage = objectMapper.readValue(bytes, RpcResponseMessage.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("反序泪化失败：{}", e.getClass().getSimpleName(), e);
         }
         list.add(responseMessage);
     }
