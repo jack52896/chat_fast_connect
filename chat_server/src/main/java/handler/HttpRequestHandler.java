@@ -4,17 +4,20 @@ import annoation.RequestBody;
 import annoation.RequestParam;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import customize.request.MultipartRquest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.*;
 import lombok.extern.slf4j.Slf4j;
 import util.ClassUtil;
 import util.JsonUtil;
 import util.URLUtil;
 
+import java.io.FileInputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -104,7 +107,7 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
 
                     break;
                 }
-                case  "application/json":{
+                case "application/json":{
                     aClass1  = getaClass(method, RequestBody.class);
                     if(Objects.nonNull(aClass1)){
                         Object param = JsonUtil.readFromJsonString(content, aClass1);
@@ -112,8 +115,39 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
                     }else{
                         result = method.invoke(object);
                     }
+                    break;
                 }
-                default:
+                case "multipart/form-data":{
+                    HttpDataFactory factory = new DefaultHttpDataFactory(true);
+                    //使用HTTP POST解码器
+                    HttpPostRequestDecoder httpDecoder = new HttpPostRequestDecoder(factory, request);
+                    httpDecoder.setDiscardThreshold(0);
+                    HttpContent chunk = (HttpContent) request;
+                    //加载对象到加吗器。
+                    httpDecoder.offer(chunk);
+                    //获取http请求数据
+                    if(chunk instanceof LastHttpContent){
+                        //http post 解码器 需要 使用 post 请求 才可以 解码成功
+                        List<InterfaceHttpData> interfaceHttpDataList = httpDecoder.getBodyHttpDatas();
+                        MultipartRquest mutipartRquest = new MultipartRquest();
+                        for (InterfaceHttpData interfaceHttpData : interfaceHttpDataList) {
+
+                            if(Objects.nonNull(interfaceHttpData) && Objects.equals(interfaceHttpData.getHttpDataType(), InterfaceHttpData.HttpDataType.FileUpload)){
+                                FileUpload fileUpload = (FileUpload) interfaceHttpData;
+                                Map<String, FileUpload> map = new HashMap<>();
+                                map.put(fileUpload.getFilename(),fileUpload);
+                                mutipartRquest.setFileUploadMap(map);
+                                mutipartRquest.setInputStream(new FileInputStream(fileUpload.getFile()));
+                                mutipartRquest.setContentType(fileUpload.getContentType());
+                                log.info("封装的具体文件请求:{}", mutipartRquest);
+                                method.invoke(object, mutipartRquest);
+                            }
+
+                        }
+                    }
+                    break;
+                }
+                default:{}
             }
 
         } catch (Exception e) {

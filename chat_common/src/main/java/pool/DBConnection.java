@@ -46,7 +46,7 @@ public class DBConnection {
             url = properties.getProperty("dataSource.url");
             userName = properties.getProperty("dataSource.userName");
             pwd = properties.getProperty("dataSource.pwd");
-            Class.forName(driverName);
+//            Class.forName(driverName);
             log.info("数据库连接结束初始化");
             log.info("连接URL:{}", url);
         } catch (Exception e) {
