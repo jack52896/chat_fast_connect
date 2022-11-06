@@ -13,6 +13,11 @@ public class DslBuilder {
 
     private String[] args;
 
+    public DslBuilder(String sql, String basePath) {
+        this.sql = sql;
+        this.basePath = basePath;
+    }
+
     public String getBasePath() {
         return basePath;
     }
@@ -40,6 +45,7 @@ public class DslBuilder {
         sql += " where " + target + " = " + value;
         return this;
     }
+
 
     public String transform(){
         return this.sql;

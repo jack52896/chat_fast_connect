@@ -61,7 +61,7 @@ public class DBConnection {
             mapperMap = new HashMap<>();
             DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
             DocumentBuilder builder=factory.newDocumentBuilder();
-            Document document = builder.parse(DBConnection.class.getClassLoader().getResourceAsStream("mapper.xml"));
+            Document document = builder.parse(DBConnection.class.getClassLoader().getResourceAsStream(properties.getProperty("application.mapper.classPath")));
             NodeList nodeList = document.getElementsByTagName("mapper");
             for(int  i  = 0; i< nodeList.getLength(); i++){
                 Node mapper = nodeList.item(i);
